@@ -4,3 +4,6 @@
 [submodule "A09"]
 	path = A09
 	url = https://github.com/Arakula/A09.git
+[submodule "LuaJIT"]
+	path = LuaJIT
+	url = https://github.com/LuaJIT/LuaJIT

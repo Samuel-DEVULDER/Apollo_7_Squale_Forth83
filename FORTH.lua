@@ -1,6 +1,7 @@
 #!/bin/lua
 
-BIN = arg[1]
+BIN  = arg[1]
+LINE = '======================================================='..'==========='
 
 -- sortie texte
 local function printf(f, format, ...)
@@ -58,21 +59,19 @@ end
 -- gestion des labels
 local lbl = {
 	length = 7,
-	l2s={},s2l={}, short = function(self, pfx,id)
+	l2s={},s2l={}, short = function(self, pfx, id)
 		id = id and pfx..id or pfx
-		if id:len()>7 then
-			local t,n = self.l2s[id]
-			if t==nil then
-				t,n = id:sub(1,self.length),0
-				while self.s2l[t] do 
-					t = id:sub(1,n>9 and self.length-2 or self.length-1)..n
-					n = n+1
-				end
-				self.s2l[t], self.l2s[id] = id, t
+		local t,n = self.l2s[id]
+		if t==nil then
+			t,n = id:sub(1,self.length),0
+			while self.s2l[t] do 
+				t = id:sub(1,n>9 and self.length-2 or self.length-1)..n
+				n = n+1
 			end
-			id = t
+			self.s2l[t], self.l2s[id] = id, t
+			-- log('%s --> %s\n', id, t)
 		end
-		return id
+		return t
 	end,
 	--
 	pseudo_cfa = {},
@@ -90,27 +89,33 @@ local lbl = {
 	end,
 	--
 	charmap = {
-		['.'] = 'dot',   [','] = 'coma',  ['/'] = 'div',   [':'] = 'col', 
-		[';'] = 'semi',  ['+'] = 'add',   ['-'] = 'sub',   ['*'] = 'mul', 
-		['='] = 'eq',    ['@'] = 'at',    ['!'] = 'stor',  ['|'] = 'bar', 
+		['.'] = 'dot',   [','] = 'kom',   ['/'] = 'div',   [':'] = 'col', 
+		[';'] = 'semi',  ['+'] = 'add',   ['-'] = 'sub',   ['*'] = 'ast', 
+		['='] = 'eq',    ['@'] = 'at',    ['!'] = 'exc',   ['|'] = 'bar', 
 		['&'] = 'amp',   ['<'] = 'lt',    ['>'] = 'gt',    ['~'] = 'tild',
-		['#'] = 'hash',  ['"'] = 'qt',    ["'"] = 'tck',   [' '] = 'spc',
-		['('] = 'lp',    [')'] = 'rp',    ['['] = 'bra',   [']'] = 'ket', 
-		['?'] = 'qm',    ['`'] = 'bq',    ['$'] = 'dol'
+		['#'] = 'n_',    ['"'] = 'qt',    ["'"] = 'tck',   [' '] = 'spc',
+		['('] = 'lp',    [')'] = 'rp',    ['['] = 'lsq',   [']'] = 'rsq', 
+		['?'] = 'qm',    ['`'] = 'bq',    ['$'] = 'dol',   ['^'] = 'up'
 	},
+	symb = {['R>'] = 'from_r', ['>NEXT'] = 'next'}, bmys={},
 	getSymb = function(self, id)
-		id = id == 'R>' and 'from_r' or id
-		return id:lower()
-	         :gsub('^<([^>]+)$',     'from_%1')
-			 :gsub('^>([^<>]+)$',    'to_%1')
-	         :gsub('^([^?]+)%?$',    'is_%1')
-			 :gsub('^%(([^()]+)%)$', '_%1_.')
-	         :gsub('^<([^<>]+)%>$',  '_%1_')
-			 :gsub('%%', 'per')
-	         :gsub('.', function(c) return self.charmap[c] or c end) 
-			 :gsub('[_]+','_')
-			 :gsub('^_','')
-			 --:gsub('_$','')
+		local t = self.symb[id]
+		if t==nil then
+			t = id:lower()
+				 :gsub('^<([^>]+)$',     'from_%1')
+				 :gsub('^>([^<>]+)$',    'to_%1')
+				 :gsub('^([^?]+)%?$',    'is_%1')
+				 :gsub('^%(([^()]+)%)$', '_%1_')
+				 :gsub('^%<([^<>]+)%>$', '_%1_')
+				 :gsub('%%', 'per')
+				 :gsub('.', function(c) return self.charmap[c] or c end) 
+				 :gsub('[_]+','_')
+				 :gsub('^_','')
+			local s,n = t,0
+			while self.bmys[t] do t,n = s..n,n+1 end
+			self.symb[id],self.bmys[t] = t,id
+		end
+		return t
 	end
 }
 
@@ -122,6 +127,9 @@ local function new_word(lfa, dico)
 	local cfa = nfa2cfa(nfa)
 	local pfa = cfa2pfa(cfa)
 	local asm = (word(cfa)==pfa) or id=='>NEXT'
+	
+	local s,n = id,0
+	while dico.by_id[id] do id,n=s..n,n+1 end
 	
 	local wrd = {id=id, lfa=lfa, nfa=nfa, cfa=cfa, asm=asm, pfa=pfa}
 	dico.by_lfa[lfa] = wrd
@@ -184,17 +192,22 @@ for lfa,_ in pairs(dico.by_lfa) do tmp[lfa],count = true,count+1 end
 for lfa,_ in pairs(dico.by_lfa) do tmp[word(lfa)] = nil end
 for lfa,_ in pairs(tmp) do table.insert(voc,lfa) end
 table.sort(voc, function(a,b) return a>b end)
-log('Found %d words over %d vocabularies\n', count, #voc)
+out('insert 0 ; Found %d words over %d vocabularies\n', count, #voc)
 for _,lfa in ipairs(voc) do 
-	local t = string.format('\n%04X: ', lfa)
+	out('insert 0 ;\n');
+	local t = string.format('$%04X:', lfa)
 	while lfa>0 do
 		local id = nfa2id(lfa2nfa(lfa))
-		if t:len()+id:len()+1>70 then log('%s\n', t) t='' end
-		t = t..id..' '
+		if t:len()+id:len()+1>=LINE:len() then 
+			out('insert 0 ; %s\n', t:gsub('(.)','\\%1'))
+			t='      ' 
+		end
+		t = t..' '..id
 		lfa = word(lfa)
 	end
-	log('%s\n', t)
+	out('insert 0 ; %s\n', t:gsub('(.)','\\%1'))
 end
+out('insert 0\n')
 
 function outAsm(w)
 	lcomment(w.pfa-2, 'ASSEMBLER')
@@ -210,8 +223,9 @@ function outAsm(w)
 	end
 	-- out('code  %04X-%04X\n', w.pfa, end_code-1)
 	-- on regrade si juste avant on a pas un swi
+	-- out('const  %04X-%04X\n', w.pfa, end_code-1)
 	out('code  %04X-%04X\n', w.pfa, end_code-1)
-	if byte(end_code-4)==0x3F then
+	if byte(end_code-4)==0x3F then -- swi
 		-- out('code  %04X-%04X\n', w.pfa, end_code-4)
 		out('data  %04X\n', end_code-3)
 		out('byte  %04X\n', end_code-3)
@@ -236,6 +250,7 @@ end
 function isSTR(w)
 	-- (word) iswhen the word is compiled not immediate
 	local id = w.id
+	if id=='FRP"' then return false end
 	return id:sub(-1)=='"' 
 		or id=='(."F)'
 	    or (id:sub(1,1)=='(' and id:sub(-2)=='")') 
@@ -249,12 +264,12 @@ function plainData(deb, fin, const)
 		if deb<fin2 then out('word %04X-%04X\n', deb, fin2) end
 		if fin2<fin then out('byte %04X\n', fin) end
 	end
-	if const    then out('const %04X-%04X\n',deb, fin)  end
+	if const then out('const %04X-%04X\n',deb, fin)  end
 end
 
 function outStr(deb, fin, bit7)
 	-- do out('byte %04X-%04X\n',deb,fin) return end
-	out('data %04X:\nbyte %04X\n',deb-1,deb-1)
+	out('data %04X\nbyte %04X\n',deb-1,deb-1)
 	while deb<=fin do
 		local zzz,t = math.min(deb+7,fin),''
 		if zzz==deb+6 then zzz = deb+5 end
@@ -301,6 +316,7 @@ function outStr(deb, fin, bit7)
 end
 
 function outDat(w)
+	local immediate = w.immediate
 	local function data(a, type)
 		out('data %04X\n%s %04X\n', a, type or 'word', a) 
 		return word(a)
@@ -316,13 +332,17 @@ function outDat(w)
 		return
 	end
 	if cfa_val==0x11B6 then 
+		local val = word(w.pfa)
 		lcomment(w.cfa,'CONSTANT ',w.id) 
-		lcomment(w.pfa, word(w.pfa)) 
-		out('word %04X\n', w.pfa)
+		lcomment(w.pfa, val) 
+		if -2<=val and val<=2 then out('const %04X\n', w.pfa) end
+		-- out('const %04X\n', w.pfa)
+		if w.pfa+2<=next_lfa-1 then
 		out('const %04X-%04X\n', w.pfa+2, next_lfa-1)
+		end
 		return
 	end
-	if cfa_val==0x11F5 then lcomment(w.cfa,': ',w.id) end -- TODO VAR ? etc
+	if cfa_val==0x11F5 then lcomment(w.cfa,': ',w.id) end 
 	while a+1<next_lfa do 
 		local v = data(a)
 		local w = dico.by_cfa[v]
@@ -334,7 +354,7 @@ function outDat(w)
 				lcomment(a+2, ((v+32768)%65536)-32768)
 			end
 			a = a + 4
-		elseif w and w.id=='(;CODE)' and a~=0x1242 then
+		elseif w and w.id=='(;CODE)' and not immediate then
 			outId(a, w)
 			out('code %04X-%04X\n', a+2,a+4) -- TODO lire jusqu'au jmp
 			a = a + 5
@@ -344,10 +364,10 @@ function outDat(w)
 			                            or lbl:getLocal(v,f)			
 			outId(a, w, ' --',lbl,'--', v<a and '^' or 'v')
 			a = a + 4
-		elseif w and isSTR(w) then
-			outId(a, w)
+		elseif w and isSTR(w) and not immediate then
 			local len = byte(a+2) 
-			lcomment(a+2, "length = "..len)
+			outId(a, w, ' len='..len)
+			-- lcomment(a+2, "length = "..len)
 			outStr(a+3,a+2+len, false)
 			a = a+3+len
 		else
@@ -376,28 +396,53 @@ out('label 0006 MEMLIM\n')
 out('word  0006\n')
 out('byte  0008\n')
 
+-- https://github.com/mamedev/mame/blob/master/src/mame/skeleton/squale.cpp
+out('label f000 EF936X_REG_CMD\n')
+out('label f001 EF936X_REG_CTRL1\n')
+out('label f002 EF936X_REG_CTRL2\n')
+out('label f003 EF936X_REG_CSIZE\n')
+out('label f005 EF936X_REG_DELTAX\n')
+out('label f007 EF936X_REG_DELTAY\n')
+out('label f008 EF936X_REG_X_MSB\n')
+out('label f009 EF936X_REG_X_LSB\n')
+out('label f00a EF936X_REG_Y_MSB\n')
+out('label f00b EF936X_REG_Y_LSB\n')
+out('label f00c EF936X_REG_XLP\n')
+out('label f00d EF936X_REG_YLP\n')
+
+-- for _,a in ipairs{0x01c2, 0x01e1, 0x01fa, 0x45d, 0x1ae8} do 
+	-- out('word %04X\n',a) 
+	-- out('const %04X\n',a) 
+-- end
+
+
 for a = 0,mem:len()-1 do 
 	local w = dico.by_lfa[a] if w then
+		local sym = lbl:getSymb(w.id)
+		
 		out('insert %04X \n', w.lfa)
-		out('comment %04X %s\n', w.lfa,  string.rep('=', 74))
-		out('comment %04X \\ %s\n', w.lfa, w.id:gsub('(.)','\\%1'))
-		out('comment %04X %s\n', w.lfa,  string.rep('=', 74))
+		out('comment %04X %s\n', w.lfa,  LINE)
+		out('comment %04X %s\n', w.lfa, w.id:gsub('(.)','\\%1'))
+		out('comment %04X %s\n', w.lfa,  LINE)
 		out('data  %04X-%04X\n', w.lfa, w.pfa-1)
 		
-		local sym = lbl:getSymb(w.id)
 		out('label %04X %s\n', w.lfa, lbl:short('l_',sym))
 		
 		out('word  %04X\n', w.lfa)
 		out('used  %04X\n', w.lfa)
 		local lfa_w = dico.by_lfa[word(w.lfa)]
-		if lfa_w then lcomment(w.lfa, 'LFA -> ', lfa_w.id) end
+		if lfa_w then 
+			lcomment(w.lfa, 'LFA -> ', lfa_w.id) 
+		else
+			out('const %04x\n', w.lfa)
+		end
 		
 		out('insert %04X \n', w.nfa)
 		out('label  %04X %s\n', w.nfa, lbl:short('n_',sym))
 		out('bin    %04X\n', w.nfa)
 		local t,s = byte(w.nfa)%128,''
-		if t>=64 then t,s=t-64,s..' IMMEDIATE' end
-		if t>=32 then t,s=t-32,s..' SMUDGE' end
+		if t>=64 then t,s=t-64,s..' IMMEDIATE' w.immediate = true end
+		if t>=32 then t,s=t-32,s..' SMUDGE'    w.smudge    = true end
 		lcomment(w.nfa, "NFA -> "..t..s)
 		outStr(w.nfa+1, w.cfa-1, true)	
 		
@@ -412,6 +457,8 @@ for a = 0,mem:len()-1 do
 		end
 		if w.next and w.pfa < w.next.lfa then -- i.e. hors constantes, variables
 			out('label %04X %s\n', w.pfa, lbl:short('p_',sym))
+			out('word %04X\n', w.pfa)
+			-- out('const %04X\n', w.pfa)
 		end
 		if w.asm then 
 			outAsm(w)
@@ -426,7 +473,7 @@ for a in pairs(lbl.pseudo_cfa) do
 	local t,w=a-1
 	repeat t,w = t-1,dico.by_lfa[t] until w or t==0
 	if w then
-		out('label %04X %s\n', a, lbl:short('a_', lbl:getSymb(w.id)))
+		-- out('label %04X %s\n', a, lbl:short('a_', lbl:getSymb(w.id)))
 		-- outAsm({pfa = a, next=w.next})
 	end
 end
@@ -446,36 +493,41 @@ out('code 1252-125c\n')
 out('label 1831 do_var\n')
 -- out('code 1831-1836\n')
 out('label 16de do_voc\n')
-out('data  16e1-16f6\n')
+-- out('word  16e1-16f6\n')
 
-out('label 1abd UVAR\n')
-out('label 2ea6 UVAR\n')
+out('label 1abd getUVAR\n')
+out('code 1abd-1ac5')
+-- out('label 2ea6 UVAR\n')
 
--- https://github.com/mamedev/mame/blob/master/src/mame/skeleton/squale.cpp
-out('label f000 EF936X_REG_CMD\n')
-out('label f001 EF936X_REG_CTRL1\n')
-out('label f002 EF936X_REG_CTRL2\n')
-out('label f003 EF936X_REG_CSIZE\n')
-out('label f005 EF936X_REG_DELTAX\n')
-out('label f007 EF936X_REG_DELTAY\n')
-out('label f008 EF936X_REG_X_MSB\n')
-out('label f009 EF936X_REG_X_LSB\n')
-out('label f00a EF936X_REG_Y_MSB\n')
-out('label f00b EF936X_REG_Y_LSB\n')
-out('label f00c EF936X_REG_XLP\n')
-out('label f00d EF936X_REG_YLP\n')
 out('label 0231 NEG_D\n')
 out('label 029C NEG_D2\n')
 out('label 0616 BYES\n')
--- out('label 3012 asm_idx\n')
--- out('label 32b3 asm_dp\n')
--- out('label 33ad asm_2\n')
--- out('label 33db asm_3\n')
--- out('label 3576 asm_23\n')
--- out('label 35F2 asm_lea\n')
--- out('label 3646 asm_cc\n')
--- out('label 369a asm_rl\n')
--- out('label 3745 asm_pp\n')
--- out('label 382e asm_cb\n')
+out('label 3012 asm_idx\n')
+out('label 32b3 asm_dp\n')
+out('label 33ad asm_2\n')
+out('label 33db asm_3\n')
+out('label 3576 asm_23\n')
+out('label 35F2 asm_lea\n')
+out('label 3646 asm_cc\n')
+out('label 369a asm_rl\n')
+out('label 3745 asm_pp\n')
+out('label 382e asm_cb\n')
 
-out('data 6C5E\n')
+out('CONST 6C5E\n') -- SWI
+
+out('const 01c1\n')
+out('const 01e1\n')
+out('const 01ed\n')
+out('const 01fa\n')
+out('const 0207\n')
+out('const 0309\n')
+out('const 045d\n')
+out('const 0667\n')
+out('const 1ae8\n')
+
+out('word 66d8\n')
+out('label CC0E SYSDAT\n')
+
+out('word 1ba6-1bb5\n')
+
+out('code 201c-201e\n')

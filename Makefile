@@ -60,8 +60,15 @@ fullclean: clean
 	$(LUA) $< $*.BIN >$@
 
 %.asm: %.info $(F9DASM)
-	$(F9DASM) -info $< -out $@
-
+	$(F9DASM) -info $< -nohex -noaddr -out $@
+	
+%.chk: %.asm $(A09)
+	$(A09) -b$@ $<
+	diff -s $*.BIN $@
+	@rm -f "$@"
+	
+chk: FORTH.chk	
+	
 ##############################################################################
 # Build/download external tools
 

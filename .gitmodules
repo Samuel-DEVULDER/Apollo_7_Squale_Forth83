@@ -1,5 +1,5 @@
 [submodule "f9dasm"]
-	path = f9dasm
+	path = F9dasm
 	url = https://github.com/Arakula/f9dasm.git
 [submodule "A09"]
 	path = A09

@@ -46,9 +46,10 @@ all: $(ALL)
 	ls -l .
 
 clean:
-	-$(RM) -rf 2>/dev/null $(LUA) $(F9DASM) $(A09) FORTH.asm FORTH.info
+	-$(RM) -rf 2>/dev/null FORTH.asm FORTH.info
 	
-fullclean:: clean
+fullclean: clean
+	-$(RM) -rf 2>/dev/null $(LUA) $(F9DASM) $(A09) 
 	-cd LuaJIT/ && make clean
 	-cd A09/    && make clean
 	-cd F9dasm/ && make clean

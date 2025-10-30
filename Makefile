@@ -33,10 +33,10 @@ ifeq ($(OS),win)
 	EXE=.exe
 endif
 
-TOOLS=tools/
-LUA=$(TOOLS)luajit$(EXE)
-F9DASM=$(TOOLS)f9dasm$(EXE)
-A09=$(TOOLS)a09$(EXE)
+LUA=LuaJIT/src/luajit$(EXE)
+F9DASM=f9dasm/f9dasm$(EXE)
+A09=a09/a09$(EXE)
+FLEXFLOPPY=flextools/flexfloppy/flexfloppy$(EXE)
 
 ALL=$(TOOLS) $(LUA) $(F9DASM) $(A09) FORTH.asm
 
@@ -49,10 +49,10 @@ clean:
 	-$(RM) -rf 2>/dev/null FORTH.asm FORTH.info
 	
 fullclean: clean
-	-$(RM) -rf 2>/dev/null $(LUA) $(F9DASM) $(A09) 
+	-rm -rf FORTH.DIR
 	-cd LuaJIT/ && make clean
-	-cd A09/    && make clean
-	-cd F9dasm/ && make clean
+	-cd a09/    && make clean
+	-cd f9dasm/ && make clean
 	
 ##############################################################################
 
@@ -67,26 +67,45 @@ fullclean: clean
 	diff -s $*.BIN $@
 	@rm -f "$@"
 	
-chk: FORTH.chk	
+chk: FORTH.chk FORTH.info
+	
+FORTH.DIR: disk/OS_FORTH_imd.dsk $(FLEXFLOPPY) 	
+	-mkdir $@
+	$(FLEXFLOPPY) --in $< --extract $@
+	
+FORTH.BIN: FORTH.DIR FORTH.DIR/FORTH.BIN 
+	cp FORTH.DIR/FORTH.BIN $@
+
+%.MOT: %.CMD $(F9DASM)
+	$(dir $(F9DASM))cmd2mot$(EXE) -out "$@" "$<"*
+
+%.BIN: %.MOT $(F9DASM)
+	$(dir $(F9DASM))mot2bin$(EXE) -out "$@" "$<"*
+	
+	
 	
 ##############################################################################
 # Build/download external tools
 
-$(LUA): LuaJIT/ $(wildcard LuaJIT/src/*)
-	cd $< && export MAKE="make -f Makefile" && $$MAKE BUILDMODE=static CC="$(CC) -static" CFLAGS="$(CFLAGS)"  
-	$(CP) $</src/$(notdir $@) "$@"
+update:
+	git submodule update --recursive --remote
+	git pull
+	
+	# git pull --recurse-submodules
+
+
+$(LUA): $(wildcard $(dir $(LUA))/*)
+	cd $(dir $@) && export MAKE="make -f Makefile" && $$MAKE BUILDMODE=static CC="$(CC) -static" CFLAGS="$(CFLAGS)"  
 	$(STRIP) "$@"
 
-$(A09): A09/ $(wildcard A09/*)
-	cd $< && export MAKE="make -f Makefile" && $$MAKE BUILDMODE=static CC="$(CC) -static" CFLAGS="$(CFLAGS)"  
-	$(CP) $</$(notdir $@) "$@"
+$(A09): $(wildcard $(dir $(A09))/*)
+	cd $(dir $@) && export MAKE="make -f Makefile" && $$MAKE BUILDMODE=static CC="$(CC) -static" CFLAGS="$(CFLAGS)"  
 	$(STRIP) "$@"
 
-
-$(F9DASM): F9dasm/ $(wildcard F9dasm/*)
-	cd $< && export MAKE="make -f Makefile" && $$MAKE CC="$(CC) -static" CFLAGS="$(CFLAGS)"  
-	$(CP) $</$(notdir $@) "$@"
+$(F9DASM): $(wildcard $(dir $(F9DASM))/*)
+	cd $(dir $@) && export MAKE="make -f Makefile" && $$MAKE CC="$(CC) -static" CFLAGS="$(CFLAGS)"  
 	$(STRIP) "$@"
 
-$(TOOLS):
-	mkdir -p "$@"
+$(FLEXFLOPPY): $(wildcard $(dir $(FLEXFLOPPY))/*)
+	cd $(dir $@) && export MAKE="make -f Makefile" && $$MAKE CC="$(CC) -static" CFLAGS="$(CFLAGS)"  
+	$(STRIP) "$@"

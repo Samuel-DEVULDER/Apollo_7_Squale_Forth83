@@ -1,9 +1,12 @@
 [submodule "f9dasm"]
-	path = F9dasm
+	path = f9dasm
 	url = https://github.com/Arakula/f9dasm.git
 [submodule "A09"]
-	path = A09
+	path = a09
 	url = https://github.com/Arakula/A09.git
 [submodule "LuaJIT"]
 	path = LuaJIT
 	url = https://github.com/LuaJIT/LuaJIT
+[submodule "flextools"]
+	path = flextools
+	url = https://github.com/Samuel-DEVULDER/flextools.git

@@ -176,7 +176,7 @@ l_next  FDB     $0000
 n_next  FCB     $85                      ; NFA -> 5
         FCB     $3E,$4E,$45,$58,$D4      ; ">NEXT"
 
-c_next  FDB     do_var                   ; ASSEMBLER
+c_next  FDB     do_var                   ; ASSEMBLY
 p_next  LDX     ,Y++
         JMP     [,X]
 
@@ -208,7 +208,7 @@ l_exit  FDB     $0000
 n_exit  FCB     $84                      ; NFA -> 4
         FCB     $45,$58,$49,$D4          ; "EXIT"
 
-c_exit  FDB     p_exit                   ; ASSEMBLER
+c_exit  FDB     p_exit                   ; ASSEMBLY
 p_exit  PULS    Y
         JMP     p_next
 
@@ -231,7 +231,7 @@ n_execu FCB     $87                      ; NFA -> 7
         FCB     $45,$58,$45,$43,$55,$54  ; "EXECUT"
         FCB     $C5                      ; "E"
 
-c_execu FDB     p_execu                  ; ASSEMBLER
+c_execu FDB     p_execu                  ; ASSEMBLY
 p_execu PULU    X
         JMP     [,X]
 
@@ -243,7 +243,7 @@ l_lit_  FDB     l_semi_                  ; LFA -> (;)
 n_lit_  FCB     $85                      ; NFA -> 5
         FCB     $28,$4C,$49,$54,$A9      ; "(LIT)"
 
-c_lit_  FDB     p_lit_                   ; ASSEMBLER
+c_lit_  FDB     p_lit_                   ; ASSEMBLY
 p_lit_  LDD     ,Y++
         PSHU    D
         JMP     p_next
@@ -256,7 +256,7 @@ l_spat  FDB     $0000
 n_spat  FCB     $83                      ; NFA -> 3
         FCB     $53,$50,$C0              ; "SP@"
 
-c_spat  FDB     p_spat                   ; ASSEMBLER
+c_spat  FDB     p_spat                   ; ASSEMBLY
 p_spat  LEAX    ,U
         PSHU    X
         JMP     p_next
@@ -269,7 +269,7 @@ l_rpat  FDB     l_noop                   ; LFA -> NOOP
 n_rpat  FCB     $83                      ; NFA -> 3
         FCB     $52,$50,$C0              ; "RP@"
 
-c_rpat  FDB     p_rpat                   ; ASSEMBLER
+c_rpat  FDB     p_rpat                   ; ASSEMBLY
 p_rpat  PSHU    S
         JMP     p_next
 
@@ -281,7 +281,7 @@ l_exc   FDB     l_execu                  ; LFA -> EXECUTE
 n_exc   FCB     $81                      ; NFA -> 1
         FCB     $A1                      ; "!"
 
-c_exc   FDB     p_exc                    ; ASSEMBLER
+c_exc   FDB     p_exc                    ; ASSEMBLY
 p_exc   LDD     $02,U
         STD     [,U]
         LEAU    $04,U
@@ -295,7 +295,7 @@ l_2exc  FDB     l_rpat                   ; LFA -> RP@
 n_2exc  FCB     $82                      ; NFA -> 2
         FCB     $32,$A1                  ; "2!"
 
-c_2exc  FDB     p_2exc                   ; ASSEMBLER
+c_2exc  FDB     p_2exc                   ; ASSEMBLY
 p_2exc  PULU    X
         PULU    D
         STD     ,X
@@ -311,7 +311,7 @@ l_cexc  FDB     l_spat                   ; LFA -> SP@
 n_cexc  FCB     $82                      ; NFA -> 2
         FCB     $43,$A1                  ; "C!"
 
-c_cexc  FDB     p_cexc                   ; ASSEMBLER
+c_cexc  FDB     p_cexc                   ; ASSEMBLY
 p_cexc  LDA     $03,U
         STA     [,U]
         LEAU    $04,U
@@ -325,7 +325,7 @@ l_at    FDB     l_lit_                   ; LFA -> (LIT)
 n_at    FCB     $81                      ; NFA -> 1
         FCB     $C0                      ; "@"
 
-c_at    FDB     p_at                     ; ASSEMBLER
+c_at    FDB     p_at                     ; ASSEMBLY
 p_at    LDD     [,U]
         STD     ,U
         JMP     p_next
@@ -338,7 +338,7 @@ l_2at   FDB     l_2exc                   ; LFA -> 2!
 n_2at   FCB     $82                      ; NFA -> 2
         FCB     $32,$C0                  ; "2@"
 
-c_2at   FDB     p_2at                    ; ASSEMBLER
+c_2at   FDB     p_2at                    ; ASSEMBLY
 p_2at   PULU    X
         LDD     ,X
         LDX     $02,X
@@ -353,7 +353,7 @@ l_cat   FDB     l_cexc                   ; LFA -> C!
 n_cat   FCB     $82                      ; NFA -> 2
         FCB     $43,$C0                  ; "C@"
 
-c_cat   FDB     p_cat                    ; ASSEMBLER
+c_cat   FDB     p_cat                    ; ASSEMBLY
 p_cat   CLRA
         LDB     [,U]
         STD     ,U
@@ -367,7 +367,7 @@ l_count FDB     l_cat                    ; LFA -> C@
 n_count FCB     $85                      ; NFA -> 5
         FCB     $43,$4F,$55,$4E,$D4      ; "COUNT"
 
-c_count FDB     p_count                  ; ASSEMBLER
+c_count FDB     p_count                  ; ASSEMBLY
 p_count PULU    X
         CLRA
         LDB     ,X+
@@ -382,7 +382,7 @@ l_to_r  FDB     l_2at                    ; LFA -> 2@
 n_to_r  FCB     $82                      ; NFA -> 2
         FCB     $3E,$D2                  ; ">R"
 
-c_to_r  FDB     p_to_r                   ; ASSEMBLER
+c_to_r  FDB     p_to_r                   ; ASSEMBLY
 p_to_r  PULU    D
         PSHS    D
         JMP     p_next
@@ -395,7 +395,7 @@ l_from_ FDB     l_to_r                   ; LFA -> >R
 n_from_ FCB     $82                      ; NFA -> 2
         FCB     $52,$BE                  ; "R>"
 
-c_from_ FDB     p_from_                  ; ASSEMBLER
+c_from_ FDB     p_from_                  ; ASSEMBLY
 p_from_ PULS    D
         PSHU    D
         JMP     p_next
@@ -408,7 +408,7 @@ l_rat   FDB     l_from_                  ; LFA -> R>
 n_rat   FCB     $82                      ; NFA -> 2
         FCB     $52,$C0                  ; "R@"
 
-c_rat   FDB     p_rat                    ; ASSEMBLER
+c_rat   FDB     p_rat                    ; ASSEMBLY
 p_rat   LDD     ,S
         PSHU    D
         JMP     p_next
@@ -421,7 +421,7 @@ l_drop  FDB     l_at                     ; LFA -> @
 n_drop  FCB     $84                      ; NFA -> 4
         FCB     $44,$52,$4F,$D0          ; "DROP"
 
-c_drop  FDB     p_drop                   ; ASSEMBLER
+c_drop  FDB     p_drop                   ; ASSEMBLY
 p_drop  LEAU    $02,U
         JMP     p_next
 
@@ -433,7 +433,7 @@ l_dup   FDB     l_drop                   ; LFA -> DROP
 n_dup   FCB     $83                      ; NFA -> 3
         FCB     $44,$55,$D0              ; "DUP"
 
-c_dup   FDB     p_dup                    ; ASSEMBLER
+c_dup   FDB     p_dup                    ; ASSEMBLY
 p_dup   LDD     ,U
         PSHU    D
         JMP     p_next
@@ -447,7 +447,7 @@ l_2dup  FDB     l_rat                    ; LFA -> R@
 n_2dup  FCB     $84                      ; NFA -> 4
         FCB     $32,$44,$55,$D0          ; "2DUP"
 
-c_2dup  FDB     p_2dup                   ; ASSEMBLER
+c_2dup  FDB     p_2dup                   ; ASSEMBLY
 p_2dup  LDD     ,U
         LDX     $02,U
         PSHU    X,D
@@ -461,7 +461,7 @@ l_qmdup FDB     l_count                  ; LFA -> COUNT
 n_qmdup FCB     $84                      ; NFA -> 4
         FCB     $3F,$44,$55,$D0          ; "?DUP"
 
-c_qmdup FDB     p_qmdup                  ; ASSEMBLER
+c_qmdup FDB     p_qmdup                  ; ASSEMBLY
 p_qmdup LDD     ,U
         BEQ     Z0149
         PSHU    D
@@ -475,7 +475,7 @@ l_over  FDB     l_qmdup                  ; LFA -> ?DUP
 n_over  FCB     $84                      ; NFA -> 4
         FCB     $4F,$56,$45,$D2          ; "OVER"
 
-c_over  FDB     p_over                   ; ASSEMBLER
+c_over  FDB     p_over                   ; ASSEMBLY
 p_over  LDD     $02,U
         PSHU    D
         JMP     p_next
@@ -489,7 +489,7 @@ l_2over FDB     l_2dup                   ; LFA -> 2DUP
 n_2over FCB     $85                      ; NFA -> 5
         FCB     $32,$4F,$56,$45,$D2      ; "2OVER"
 
-c_2over FDB     p_2over                  ; ASSEMBLER
+c_2over FDB     p_2over                  ; ASSEMBLY
 p_2over LDD     $04,U
         LDX     $06,U
         PSHU    X,D
@@ -503,7 +503,7 @@ l_swap  FDB     l_over                   ; LFA -> OVER
 n_swap  FCB     $84                      ; NFA -> 4
         FCB     $53,$57,$41,$D0          ; "SWAP"
 
-c_swap  FDB     p_swap                   ; ASSEMBLER
+c_swap  FDB     p_swap                   ; ASSEMBLY
 p_swap  PULU    X,D
         PSHU    D
         PSHU    X
@@ -518,7 +518,7 @@ l_rot   FDB     l_2over                  ; LFA -> 2OVER
 n_rot   FCB     $83                      ; NFA -> 3
         FCB     $52,$4F,$D4              ; "ROT"
 
-c_rot   FDB     p_rot                    ; ASSEMBLER
+c_rot   FDB     p_rot                    ; ASSEMBLY
 p_rot   PSHS    Y
         PULU    Y,X,D
         PSHU    X,D
@@ -534,7 +534,7 @@ l_pick  FDB     l_dup                    ; LFA -> DUP
 n_pick  FCB     $84                      ; NFA -> 4
         FCB     $50,$49,$43,$CB          ; "PICK"
 
-c_pick  FDB     p_pick                   ; ASSEMBLER
+c_pick  FDB     p_pick                   ; ASSEMBLY
 p_pick  PULU    D
         ASLB
         ROLA
@@ -551,7 +551,7 @@ l_roll  FDB     l_rot                    ; LFA -> ROT
 n_roll  FCB     $84                      ; NFA -> 4
         FCB     $52,$4F,$4C,$CC          ; "ROLL"
 
-c_roll  FDB     p_roll                   ; ASSEMBLER
+c_roll  FDB     p_roll                   ; ASSEMBLY
 p_roll  PSHS    Y
         PULU    D
         ASLB
@@ -575,7 +575,7 @@ l_add   FDB     l_swap                   ; LFA -> SWAP
 n_add   FCB     $81                      ; NFA -> 1
         FCB     $AB                      ; "+"
 
-c_add   FDB     p_add                    ; ASSEMBLER
+c_add   FDB     p_add                    ; ASSEMBLY
 p_add   PULU    D
 Z01D3   ADDD    ,U
         STD     ,U
@@ -589,7 +589,7 @@ l_1add  FDB     l_exc                    ; LFA -> !
 n_1add  FCB     $82                      ; NFA -> 2
         FCB     $31,$AB                  ; "1+"
 
-c_1add  FDB     p_1add                   ; ASSEMBLER
+c_1add  FDB     p_1add                   ; ASSEMBLY
 p_1add  LDD     #$0001
         BRA     Z01D3
 
@@ -601,7 +601,7 @@ l_1sub  FDB     l_1add                   ; LFA -> 1+
 n_1sub  FCB     $82                      ; NFA -> 2
         FCB     $31,$AD                  ; "1-"
 
-c_1sub  FDB     p_1sub                   ; ASSEMBLER
+c_1sub  FDB     p_1sub                   ; ASSEMBLY
 p_1sub  LDD     #$FFFF
         BRA     Z01D3
         FCB     $38
@@ -614,7 +614,7 @@ l_2add  FDB     l_roll                   ; LFA -> ROLL
 n_2add  FCB     $82                      ; NFA -> 2
         FCB     $32,$AB                  ; "2+"
 
-c_2add  FDB     p_2add                   ; ASSEMBLER
+c_2add  FDB     p_2add                   ; ASSEMBLY
 p_2add  LDD     #$0002
         BRA     Z01D3
         FCB     $2F
@@ -627,7 +627,7 @@ l_2sub  FDB     l_2add                   ; LFA -> 2+
 n_2sub  FCB     $82                      ; NFA -> 2
         FCB     $32,$AD                  ; "2-"
 
-c_2sub  FDB     p_2sub                   ; ASSEMBLER
+c_2sub  FDB     p_2sub                   ; ASSEMBLY
 p_2sub  LDD     #$FFFE
         BRA     Z01D3
         FCB     $32
@@ -640,7 +640,7 @@ l_2ast  FDB     l_2sub                   ; LFA -> 2-
 n_2ast  FCB     $82                      ; NFA -> 2
         FCB     $32,$AA                  ; "2*"
 
-c_2ast  FDB     p_2ast                   ; ASSEMBLER
+c_2ast  FDB     p_2ast                   ; ASSEMBLY
 p_2ast  LDD     ,U
         BRA     Z01D3
 
@@ -652,7 +652,7 @@ l_sub   FDB     l_1sub                   ; LFA -> 1-
 n_sub   FCB     $81                      ; NFA -> 1
         FCB     $AD                      ; "-"
 
-c_sub   FDB     p_sub                    ; ASSEMBLER
+c_sub   FDB     p_sub                    ; ASSEMBLY
 p_sub   LDD     $02,U
         SUBD    ,U++
         STD     ,U
@@ -666,7 +666,7 @@ l_abs   FDB     l_sub                    ; LFA -> -
 n_abs   FCB     $83                      ; NFA -> 3
         FCB     $41,$42,$D3              ; "ABS"
 
-c_abs   FDB     p_abs                    ; ASSEMBLER
+c_abs   FDB     p_abs                    ; ASSEMBLY
 p_abs   LDA     ,U
         BPL     Z0237
 Z0231   CLRA
@@ -695,7 +695,7 @@ l_2div  FDB     l_negat                  ; LFA -> NEGATE
 n_2div  FCB     $82                      ; NFA -> 2
         FCB     $32,$AF                  ; "2/"
 
-c_2div  FDB     p_2div                   ; ASSEMBLER
+c_2div  FDB     p_2div                   ; ASSEMBLY
 p_2div  ASR     ,U
         ROR     $01,U
         JMP     p_next
@@ -708,7 +708,7 @@ l_d2div FDB     l_pick                   ; LFA -> PICK
 n_d2div FCB     $83                      ; NFA -> 3
         FCB     $44,$32,$AF              ; "D2/"
 
-c_d2div FDB     p_d2div                  ; ASSEMBLER
+c_d2div FDB     p_d2div                  ; ASSEMBLY
 p_d2div ASR     ,U
         ROR     $01,U
         ROR     $02,U
@@ -723,7 +723,7 @@ l_addex FDB     l_add                    ; LFA -> +
 n_addex FCB     $82                      ; NFA -> 2
         FCB     $2B,$A1                  ; "+!"
 
-c_addex FDB     p_addex                  ; ASSEMBLER
+c_addex FDB     p_addex                  ; ASSEMBLY
 p_addex PULU    X
         PULU    D
         ADDD    ,X
@@ -738,7 +738,7 @@ l_dadd  FDB     l_d2div                  ; LFA -> D2/
 n_dadd  FCB     $82                      ; NFA -> 2
         FCB     $44,$AB                  ; "D+"
 
-c_dadd  FDB     p_dadd                   ; ASSEMBLER
+c_dadd  FDB     p_dadd                   ; ASSEMBLY
 p_dadd  LDD     $02,U
         ADDD    $06,U
         STD     $06,U
@@ -757,7 +757,7 @@ l_dabs  FDB     l_dadd                   ; LFA -> D+
 n_dabs  FCB     $84                      ; NFA -> 4
         FCB     $44,$41,$42,$D3          ; "DABS"
 
-c_dabs  FDB     p_dabs                   ; ASSEMBLER
+c_dabs  FDB     p_dabs                   ; ASSEMBLY
 p_dabs  LDA     ,U
         BPL     Z02AB
 NEG_D2  CLRA
@@ -789,7 +789,7 @@ l_and   FDB     l_abs                    ; LFA -> ABS
 n_and   FCB     $83                      ; NFA -> 3
         FCB     $41,$4E,$C4              ; "AND"
 
-c_and   FDB     p_and                    ; ASSEMBLER
+c_and   FDB     p_and                    ; ASSEMBLY
 p_and   PULU    D
         ANDB    $01,U
         ANDA    ,U
@@ -804,7 +804,7 @@ l_or    FDB     l_addex                  ; LFA -> +!
 n_or    FCB     $82                      ; NFA -> 2
         FCB     $4F,$D2                  ; "OR"
 
-c_or    FDB     p_or                     ; ASSEMBLER
+c_or    FDB     p_or                     ; ASSEMBLY
 p_or    PULU    D
         ORB     $01,U
         ORA     ,U
@@ -819,7 +819,7 @@ l_xor   FDB     l_dnega                  ; LFA -> DNEGATE
 n_xor   FCB     $83                      ; NFA -> 3
         FCB     $58,$4F,$D2              ; "XOR"
 
-c_xor   FDB     p_xor                    ; ASSEMBLER
+c_xor   FDB     p_xor                    ; ASSEMBLY
 p_xor   PULU    D
         EORB    $01,U
         EORA    ,U
@@ -835,7 +835,7 @@ l_not   FDB     l_2div                   ; LFA -> 2/
 n_not   FCB     $83                      ; NFA -> 3
         FCB     $4E,$4F,$D4              ; "NOT"
 
-c_not   FDB     p_not                    ; ASSEMBLER
+c_not   FDB     p_not                    ; ASSEMBLY
 p_not   COM     ,U
         COM     $01,U
         JMP     p_next
@@ -848,7 +848,7 @@ l_0eq   FDB     l_xor                    ; LFA -> XOR
 n_0eq   FCB     $82                      ; NFA -> 2
         FCB     $30,$BD                  ; "0="
 
-c_0eq   FDB     p_0eq                    ; ASSEMBLER
+c_0eq   FDB     p_0eq                    ; ASSEMBLY
 p_0eq   LDD     ,U
         BNE     Z030D
 Z0308   LDD     #$FFFF
@@ -866,7 +866,7 @@ l_0lt   FDB     l_0eq                    ; LFA -> 0=
 n_0lt   FCB     $82                      ; NFA -> 2
         FCB     $30,$BC                  ; "0<"
 
-c_0lt   FDB     p_0lt                    ; ASSEMBLER
+c_0lt   FDB     p_0lt                    ; ASSEMBLY
 p_0lt   LDA     ,U
         BMI     Z0308
         BRA     Z030D
@@ -879,7 +879,7 @@ l_0gt   FDB     l_0lt                    ; LFA -> 0<
 n_0gt   FCB     $82                      ; NFA -> 2
         FCB     $30,$BE                  ; "0>"
 
-c_0gt   FDB     p_0gt                    ; ASSEMBLER
+c_0gt   FDB     p_0gt                    ; ASSEMBLY
 p_0gt   LDD     ,U
         BGT     Z0308
         BRA     Z030D
@@ -892,7 +892,7 @@ l_eq    FDB     l_and                    ; LFA -> AND
 n_eq    FCB     $81                      ; NFA -> 1
         FCB     $BD                      ; "="
 
-c_eq    FDB     p_eq                     ; ASSEMBLER
+c_eq    FDB     p_eq                     ; ASSEMBLY
 p_eq    PULU    X
         CMPX    ,U
         BEQ     Z0308
@@ -906,7 +906,7 @@ l_lt    FDB     l_0gt                    ; LFA -> 0>
 n_lt    FCB     $81                      ; NFA -> 1
         FCB     $BC                      ; "<"
 
-c_lt    FDB     p_lt                     ; ASSEMBLER
+c_lt    FDB     p_lt                     ; ASSEMBLY
 p_lt    PULU    X
         CMPX    ,U
 Z0345   BGT     Z0308
@@ -921,7 +921,7 @@ l_gt    FDB     l_not                    ; LFA -> NOT
 n_gt    FCB     $81                      ; NFA -> 1
         FCB     $BE                      ; ">"
 
-c_gt    FDB     p_gt                     ; ASSEMBLER
+c_gt    FDB     p_gt                     ; ASSEMBLY
 p_gt    PULU    X
         CMPX    ,U
         BLT     Z0308
@@ -935,7 +935,7 @@ l_ult   FDB     l_eq                     ; LFA -> =
 n_ult   FCB     $82                      ; NFA -> 2
         FCB     $55,$BC                  ; "U<"
 
-c_ult   FDB     p_ult                    ; ASSEMBLER
+c_ult   FDB     p_ult                    ; ASSEMBLY
 p_ult   PULU    X
 Z0361   CMPX    ,U
 Z0363   BHI     Z0308
@@ -949,7 +949,7 @@ l_dlt   FDB     l_lt                     ; LFA -> <
 n_dlt   FCB     $82                      ; NFA -> 2
         FCB     $44,$BC                  ; "D<"
 
-c_dlt   FDB     p_dlt                    ; ASSEMBLER
+c_dlt   FDB     p_dlt                    ; ASSEMBLY
 p_dlt   PULU    X,D
         CMPD    ,U++
         BNE     Z0345
@@ -963,7 +963,7 @@ l_dult  FDB     l_dlt                    ; LFA -> D<
 n_dult  FCB     $83                      ; NFA -> 3
         FCB     $44,$55,$BC              ; "DU<"
 
-c_dult  FDB     p_dult                   ; ASSEMBLER
+c_dult  FDB     p_dult                   ; ASSEMBLY
 p_dult  PULU    X,D
         CMPD    ,U++
         BNE     Z0363
@@ -977,7 +977,7 @@ l_min   FDB     l_ult                    ; LFA -> U<
 n_min   FCB     $83                      ; NFA -> 3
         FCB     $4D,$49,$CE              ; "MIN"
 
-c_min   FDB     p_min                    ; ASSEMBLER
+c_min   FDB     p_min                    ; ASSEMBLY
 p_min   PULU    X
         CMPX    ,U
         BGE     Z0398
@@ -992,7 +992,7 @@ l_max   FDB     l_min                    ; LFA -> MIN
 n_max   FCB     $83                      ; NFA -> 3
         FCB     $4D,$41,$D8              ; "MAX"
 
-c_max   FDB     p_max                    ; ASSEMBLER
+c_max   FDB     p_max                    ; ASSEMBLY
 p_max   PULU    X
         CMPX    ,U
         BGT     Z0396
@@ -1006,7 +1006,7 @@ l_cmove FDB     l_or                     ; LFA -> OR
 n_cmove FCB     $85                      ; NFA -> 5
         FCB     $43,$4D,$4F,$56,$C5      ; "CMOVE"
 
-c_cmove FDB     p_cmove                  ; ASSEMBLER
+c_cmove FDB     p_cmove                  ; ASSEMBLY
 p_cmove PSHS    U,Y
         LDY     $02,U
         LDU     $04,U
@@ -1028,7 +1028,7 @@ l_cmov0 FDB     l_cmove                  ; LFA -> CMOVE
 n_cmov0 FCB     $86                      ; NFA -> 6
         FCB     $43,$4D,$4F,$56,$45,$BE  ; "CMOVE>"
 
-c_cmov0 FDB     p_cmov0                  ; ASSEMBLER
+c_cmov0 FDB     p_cmov0                  ; ASSEMBLY
 p_cmov0 PSHS    U,Y
         LDY     $02,U
         LDU     $04,U
@@ -1054,7 +1054,7 @@ l_fill  FDB     l_gt                     ; LFA -> >
 n_fill  FCB     $84                      ; NFA -> 4
         FCB     $46,$49,$4C,$CC          ; "FILL"
 
-c_fill  FDB     p_fill                   ; ASSEMBLER
+c_fill  FDB     p_fill                   ; ASSEMBLY
 p_fill  PSHS    Y
         PULU    Y,X,D
         LEAX    ,X
@@ -1073,7 +1073,7 @@ l_umast FDB     l_max                    ; LFA -> MAX
 n_umast FCB     $83                      ; NFA -> 3
         FCB     $55,$4D,$AA              ; "UM*"
 
-c_umast FDB     p_umast                  ; ASSEMBLER
+c_umast FDB     p_umast                  ; ASSEMBLY
 p_umast LDA     $01,U
         LDB     $03,U
         MUL
@@ -1108,7 +1108,7 @@ l_umdiv FDB     l_umast                  ; LFA -> UM*
 n_umdiv FCB     $86                      ; NFA -> 6
         FCB     $55,$4D,$2F,$4D,$4F,$C4  ; "UM/MOD"
 
-c_umdiv FDB     p_umdiv                  ; ASSEMBLER
+c_umdiv FDB     p_umdiv                  ; ASSEMBLY
 p_umdiv LDD     $02,U
         LDX     $04,U
         STX     $02,U
@@ -1429,7 +1429,7 @@ n_qmbra FCB     $87                      ; NFA -> 7
         FCB     $3F,$42,$52,$41,$4E,$43  ; "?BRANC"
         FCB     $C8                      ; "H"
 
-c_qmbra FDB     p_qmbra                  ; ASSEMBLER
+c_qmbra FDB     p_qmbra                  ; ASSEMBLY
 p_qmbra LDD     ,U++
         BNE     Z061B
 BYES    LDY     ,Y
@@ -1456,7 +1456,7 @@ l_do_   FDB     l_dmax                   ; LFA -> DMAX
 n_do_   FCB     $84                      ; NFA -> 4
         FCB     $28,$44,$4F,$A9          ; "(DO)"
 
-c_do_   FDB     p_do_                    ; ASSEMBLER
+c_do_   FDB     p_do_                    ; ASSEMBLY
 p_do_   LDX     ,Y++
         LDD     $02,U
         ADDA    #$80
@@ -1474,7 +1474,7 @@ l_qmdo_ FDB     l_do_                    ; LFA -> (DO)
 n_qmdo_ FCB     $85                      ; NFA -> 5
         FCB     $28,$3F,$44,$4F,$A9      ; "(?DO)"
 
-c_qmdo_ FDB     p_qmdo_                  ; ASSEMBLER
+c_qmdo_ FDB     p_qmdo_                  ; ASSEMBLY
 p_qmdo_ LDD     ,U
         SUBD    $02,U
         BNE     p_do_
@@ -1490,7 +1490,7 @@ l_loop_ FDB     l_qmdo_                  ; LFA -> (?DO)
 n_loop_ FCB     $86                      ; NFA -> 6
         FCB     $28,$4C,$4F,$4F,$50,$A9  ; "(LOOP)"
 
-c_loop_ FDB     p_loop_                  ; ASSEMBLER
+c_loop_ FDB     p_loop_                  ; ASSEMBLY
 p_loop_ LDD     #$0001
 Z0669   ADDD    ,S
         BVC     Z0671
@@ -1509,7 +1509,7 @@ n_addlo FCB     $87                      ; NFA -> 7
         FCB     $28,$2B,$4C,$4F,$4F,$50  ; "(+LOOP"
         FCB     $A9                      ; ")"
 
-c_addlo FDB     p_addlo                  ; ASSEMBLER
+c_addlo FDB     p_addlo                  ; ASSEMBLY
 p_addlo PULU    D
         BRA     Z0669
 
@@ -1522,7 +1522,7 @@ n_leave FCB     $87                      ; NFA -> 7
         FCB     $28,$4C,$45,$41,$56,$45  ; "(LEAVE"
         FCB     $A9                      ; ")"
 
-c_leave FDB     p_leave                  ; ASSEMBLER
+c_leave FDB     p_leave                  ; ASSEMBLY
 p_leave PULS    Y,X,D
         JMP     p_next
 
@@ -1534,7 +1534,7 @@ l_qmlea FDB     l_leave                  ; LFA -> (LEAVE)
 n_qmlea FCB     $88                      ; NFA -> 8
         FDB     $283F,$4C45,$4156,$45A9  ; "(?LEAVE)"
 
-c_qmlea FDB     p_qmlea                  ; ASSEMBLER
+c_qmlea FDB     p_qmlea                  ; ASSEMBLY
 p_qmlea LDD     ,U++
         BNE     p_leave
         JMP     p_next
@@ -1547,7 +1547,7 @@ l_i     FDB     l_mod                    ; LFA -> MOD
 n_i     FCB     $81                      ; NFA -> 1
         FCB     $C9                      ; "I"
 
-c_i     FDB     p_i                      ; ASSEMBLER
+c_i     FDB     p_i                      ; ASSEMBLY
 p_i     LDD     ,S
         ADDD    $02,S
         PSHU    D
@@ -1562,7 +1562,7 @@ l_j     FDB     l_branc                  ; LFA -> BRANCH
 n_j     FCB     $81                      ; NFA -> 1
         FCB     $CA                      ; "J"
 
-c_j     FDB     p_j                      ; ASSEMBLER
+c_j     FDB     p_j                      ; ASSEMBLY
 p_j     LDD     $06,S
         ADDD    $08,S
         PSHU    D
@@ -1576,7 +1576,7 @@ l_k     FDB     l_qmbra                  ; LFA -> ?BRANCH
 n_k     FCB     $81                      ; NFA -> 1
         FCB     $CB                      ; "K"
 
-c_k     FDB     p_k                      ; ASSEMBLER
+c_k     FDB     p_k                      ; ASSEMBLY
 p_k     LDD     $0C,S
         ADDD    $0E,S
         PSHU    D
@@ -2530,7 +2530,7 @@ l_digit FDB     l_ddot                   ; LFA -> D.
 n_digit FCB     $85                      ; NFA -> 5
         FCB     $44,$49,$47,$49,$D4      ; "DIGIT"
 
-c_digit FDB     p_digit                  ; ASSEMBLER
+c_digit FDB     p_digit                  ; ASSEMBLY
 p_digit LDB     $03,U
         SUBB    #$30
         SEX
@@ -2596,7 +2596,7 @@ l_skp_  FDB     l_digit                  ; LFA -> DIGIT
 n_skp_  FCB     $85                      ; NFA -> 5
         FCB     $28,$53,$4B,$50,$A9      ; "(SKP)"
 
-c_skp_  FDB     p_skp_                   ; ASSEMBLER
+c_skp_  FDB     p_skp_                   ; ASSEMBLY
 p_skp_  PSHS    Y
         PULU    Y,X,D
         STX     ,--S
@@ -2621,7 +2621,7 @@ l_scn_  FDB     l_skp_                   ; LFA -> (SKP)
 n_scn_  FCB     $85                      ; NFA -> 5
         FCB     $28,$53,$43,$4E,$A9      ; "(SCN)"
 
-c_scn_  FDB     p_scn_                   ; ASSEMBLER
+c_scn_  FDB     p_scn_                   ; ASSEMBLY
 p_scn_  PSHS    Y
         LDA     $01,U
         CLRB
@@ -3676,7 +3676,7 @@ l_find_ FDB     l_last                   ; LFA -> LAST
 n_find_ FCB     $86                      ; NFA -> 6
         FCB     $28,$46,$49,$4E,$44,$A9  ; "(FIND)"
 
-c_find_ FDB     p_find_                  ; ASSEMBLER
+c_find_ FDB     p_find_                  ; ASSEMBLY
 p_find_ PSHS    Y
 Z132E   LDX     [,U]
         STX     ,U
@@ -3723,7 +3723,7 @@ l_caps  FDB     l_qmcap                  ; LFA -> ?CAP
 n_caps  FCB     $84                      ; NFA -> 4
         FCB     $43,$41,$50,$D3          ; "CAPS"
 
-c_caps  FDB     p_caps                   ; ASSEMBLER
+c_caps  FDB     p_caps                   ; ASSEMBLY
 p_caps  LDX     ,U++
         PSHS    Y
         PULU    Y
@@ -3749,7 +3749,7 @@ n_to_th FCB     $87                      ; NFA -> 7
         FCB     $3E,$54,$48,$52,$45,$41  ; ">THREA"
         FCB     $C4                      ; "D"
 
-c_to_th FDB     p_to_th                  ; ASSEMBLER
+c_to_th FDB     p_to_th                  ; ASSEMBLY
 p_to_th LDX     $02,U
         CLRA
         LDB     $01,X
@@ -4773,7 +4773,7 @@ l_spexc FDB     l_s0                     ; LFA -> S0
 n_spexc FCB     $83                      ; NFA -> 3
         FCB     $53,$50,$A1              ; "SP!"
 
-c_spexc FDB     p_spexc                  ; ASSEMBLER
+c_spexc FDB     p_spexc                  ; ASSEMBLY
 p_spexc LDU     [p_up]
         CLR     ,U
         CLR     $01,U
@@ -4798,7 +4798,7 @@ l_rpexc FDB     l_r0                     ; LFA -> R0
 n_rpexc FCB     $83                      ; NFA -> 3
         FCB     $52,$50,$A1              ; "RP!"
 
-c_rpexc FDB     p_rpexc                  ; ASSEMBLER
+c_rpexc FDB     p_rpexc                  ; ASSEMBLY
 p_rpexc LDX     p_up
         LDS     $02,X
         JMP     p_next
@@ -4901,7 +4901,7 @@ l_reset FDB     l_base                   ; LFA -> BASE
 n_reset FCB     $85                      ; NFA -> 5
         FCB     $52,$45,$53,$45,$D4      ; "RESET"
 
-c_reset FDB     p_reset                  ; ASSEMBLER
+c_reset FDB     p_reset                  ; ASSEMBLY
 p_reset LDD     [MEMLIM]
         LDX     p_n_buf
 Z1B85   SUBD    p_bufsi
@@ -5077,7 +5077,7 @@ l_tchec FDB     l_print                  ; LFA -> PRINTER
 n_tchec FCB     $86                      ; NFA -> 6
         FCB     $54,$43,$48,$45,$43,$CB  ; "TCHECK"
 
-c_tchec FDB     p_tchec                  ; ASSEMBLER
+c_tchec FDB     p_tchec                  ; ASSEMBLY
 p_tchec CLRB
         JSR     [CSTAT]
         BEQ     Z1CBD
@@ -5094,7 +5094,7 @@ l_tinch FDB     l_tchec                  ; LFA -> TCHECK
 n_tinch FCB     $85                      ; NFA -> 5
         FCB     $54,$49,$4E,$43,$C8      ; "TINCH"
 
-c_tinch FDB     p_tinch                  ; ASSEMBLER
+c_tinch FDB     p_tinch                  ; ASSEMBLY
 p_tinch JSR     [CINCHNE]
         PSHU    A
         CLRA
@@ -5109,7 +5109,7 @@ l_toutc FDB     l_tinch                  ; LFA -> TINCH
 n_toutc FCB     $86                      ; NFA -> 6
         FCB     $54,$4F,$55,$54,$43,$C8  ; "TOUTCH"
 
-c_toutc FDB     p_toutc                  ; ASSEMBLER
+c_toutc FDB     p_toutc                  ; ASSEMBLY
 p_toutc LDA     $01,U
         LEAU    $02,U
         JSR     [COUTCH]
@@ -5123,7 +5123,7 @@ l_pchk  FDB     l_toutc                  ; LFA -> TOUTCH
 n_pchk  FCB     $84                      ; NFA -> 4
         FCB     $50,$43,$48,$CB          ; "PCHK"
 
-c_pchk  FDB     p_pchk                   ; ASSEMBLER
+c_pchk  FDB     p_pchk                   ; ASSEMBLY
 p_pchk  LDB     #$FF
         JSR     PRTCHK
         BMI     Z1CFD
@@ -5140,7 +5140,7 @@ l_pout  FDB     l_pchk                   ; LFA -> PCHK
 n_pout  FCB     $84                      ; NFA -> 4
         FCB     $50,$4F,$55,$D4          ; "POUT"
 
-c_pout  FDB     p_pout                   ; ASSEMBLER
+c_pout  FDB     p_pout                   ; ASSEMBLY
 p_pout  LDA     $01,U
         LEAU    $02,U
         JSR     PRTOUT
@@ -5154,7 +5154,7 @@ l_getch FDB     l_qmkey                  ; LFA -> ?KEY
 n_getch FCB     $86                      ; NFA -> 6
         FCB     $47,$45,$54,$43,$48,$D2  ; "GETCHR"
 
-c_getch FDB     p_getch                  ; ASSEMBLER
+c_getch FDB     p_getch                  ; ASSEMBLY
 p_getch JSR     GETCHR
         PSHU    A
         CLRA
@@ -5169,7 +5169,7 @@ l_putch FDB     l_pout                   ; LFA -> POUT
 n_putch FCB     $86                      ; NFA -> 6
         FCB     $50,$55,$54,$43,$48,$D2  ; "PUTCHR"
 
-c_putch FDB     p_putch                  ; ASSEMBLER
+c_putch FDB     p_putch                  ; ASSEMBLY
 p_putch LDA     $01,U
         LEAU    $02,U
         JSR     PUTCHR
@@ -5183,7 +5183,7 @@ l_flex  FDB     l_reset                  ; LFA -> RESET
 n_flex  FCB     $84                      ; NFA -> 4
         FCB     $46,$4C,$45,$D8          ; "FLEX"
 
-c_flex  FDB     p_flex                   ; ASSEMBLER
+c_flex  FDB     p_flex                   ; ASSEMBLY
 p_flex  JMP     WARMS
 
 ; ==================================================================
@@ -5348,7 +5348,7 @@ l_rw_   FDB     l_cb_                    ; LFA -> (CB)
 n_rw_   FCB     $84                      ; NFA -> 4
         FCB     $28,$52,$57,$A9          ; "(RW)"
 
-c_rw_   FDB     p_rw_                    ; ASSEMBLER
+c_rw_   FDB     p_rw_                    ; ASSEMBLY
 p_rw_   LDX     #p_cb_
         JSR     FMS
         JMP     p_next
@@ -6212,7 +6212,7 @@ l_gobug FDB     l_tckde                  ; LFA -> 'DEBUG
 n_gobug FCB     $85                      ; NFA -> 5
         FCB     $47,$4F,$42,$55,$C7      ; "GOBUG"
 
-c_gobug FDB     p_gobug                  ; ASSEMBLER
+c_gobug FDB     p_gobug                  ; ASSEMBLY
 p_gobug PULS    Y
         LDX     ,Y++
         FCB     $6E
@@ -10303,7 +10303,7 @@ l_to_do FDB     l_resum                  ; LFA -> RESUME
 n_to_do FCB     $84                      ; NFA -> 4
         FCB     $3E,$44,$4F,$D3          ; ">DOS"
 
-c_to_do FDB     p_to_do                  ; ASSEMBLER
+c_to_do FDB     p_to_do                  ; ASSEMBLY
 p_to_do PULU    X,D
         PSHS    Y
         TSTB
@@ -10328,7 +10328,7 @@ l_dos   FDB     l_trace                  ; LFA -> TRACE
 n_dos   FCB     $83                      ; NFA -> 3
         FCB     $44,$4F,$D3              ; "DOS"
 
-c_dos   FDB     p_dos                    ; ASSEMBLER
+c_dos   FDB     p_dos                    ; ASSEMBLY
 p_dos   PSHS    U,Y,DP
         JSR     DOCMND
         PULS    U,Y,DP
@@ -10359,7 +10359,7 @@ l_getfi FDB     l_lp0                    ; LFA -> _(
 n_getfi FCB     $86                      ; NFA -> 6
         FCB     $47,$45,$54,$46,$49,$CC  ; "GETFIL"
 
-c_getfi FDB     p_getfi                  ; ASSEMBLER
+c_getfi FDB     p_getfi                  ; ASSEMBLY
 p_getfi PSHS    U,Y,DP
         LDX     ,U
         JSR     GETFIL
@@ -10395,7 +10395,7 @@ l_setex FDB     l_getfi                  ; LFA -> GETFIL
 n_setex FCB     $86                      ; NFA -> 6
         FCB     $53,$45,$54,$45,$58,$D4  ; "SETEXT"
 
-c_setex FDB     p_setex                  ; ASSEMBLER
+c_setex FDB     p_setex                  ; ASSEMBLY
 p_setex PULU    X,D
         PSHS    U,Y,DP
         EXG     D,X
@@ -10412,7 +10412,7 @@ l_clsal FDB     l_setex                  ; LFA -> SETEXT
 n_clsal FCB     $86                      ; NFA -> 6
         FCB     $43,$4C,$53,$41,$4C,$CC  ; "CLSALL"
 
-c_clsal FDB     p_clsal                  ; ASSEMBLER
+c_clsal FDB     p_clsal                  ; ASSEMBLY
 p_clsal PSHS    U,Y,DP
         JSR     FMSCLS
         PULS    U,Y,DP
@@ -10426,7 +10426,7 @@ l_rpter FDB     l_filen                  ; LFA -> FILENAME
 n_rpter FCB     $86                      ; NFA -> 6
         FCB     $52,$50,$54,$45,$52,$D2  ; "RPTERR"
 
-c_rpter FDB     p_rpter                  ; ASSEMBLER
+c_rpter FDB     p_rpter                  ; ASSEMBLY
 p_rpter PSHS    U,Y,DP
         PULU    X
         JSR     RPTERR
@@ -10441,7 +10441,7 @@ l_fms   FDB     l_rpter                  ; LFA -> RPTERR
 n_fms   FCB     $83                      ; NFA -> 3
         FCB     $46,$4D,$D3              ; "FMS"
 
-c_fms   FDB     p_fms                    ; ASSEMBLER
+c_fms   FDB     p_fms                    ; ASSEMBLY
 p_fms   LDX     ,U
         JSR     FMS
         CLRA
@@ -10457,7 +10457,7 @@ l_to_fm FDB     l_fms                    ; LFA -> FMS
 n_to_fm FCB     $84                      ; NFA -> 4
         FCB     $3E,$46,$4D,$D3          ; ">FMS"
 
-c_to_fm FDB     p_to_fm                  ; ASSEMBLER
+c_to_fm FDB     p_to_fm                  ; ASSEMBLY
 p_to_fm PULU    X
         LDD     ,U
         TFR     B,A
@@ -10475,7 +10475,7 @@ l_fmsgt FDB     l_to_fm                  ; LFA -> >FMS
 n_fmsgt FCB     $84                      ; NFA -> 4
         FCB     $46,$4D,$53,$BE          ; "FMS>"
 
-c_fmsgt FDB     p_fmsgt                  ; ASSEMBLER
+c_fmsgt FDB     p_fmsgt                  ; ASSEMBLY
 p_fmsgt LDX     ,U
         JSR     FMS
         TFR     A,B
@@ -10587,7 +10587,7 @@ l_edite FDB     l_assem                  ; LFA -> ASSEMBLER
 n_edite FCB     $86                      ; NFA -> 6
         FCB     $45,$44,$49,$54,$45,$BE  ; "EDITE>"
 
-c_edite FDB     p_edite                  ; ASSEMBLER
+c_edite FDB     p_edite                  ; ASSEMBLY
 p_edite LDD     ,U++
         LDX     ,U++
         PSHS    U
@@ -10607,7 +10607,7 @@ l_subro FDB     l_edite                  ; LFA -> EDITE>
 n_subro FCB     $84                      ; NFA -> 4
         FCB     $2D,$52,$4F,$D4          ; "-ROT"
 
-c_subro FDB     p_subro                  ; ASSEMBLER
+c_subro FDB     p_subro                  ; ASSEMBLY
 p_subro PSHS    Y
         PULU    Y,X,D
         PSHU    D
@@ -10623,7 +10623,7 @@ l_nip   FDB     l_2cte                   ; LFA -> 2CTE
 n_nip   FCB     $83                      ; NFA -> 3
         FCB     $4E,$49,$D0              ; "NIP"
 
-c_nip   FDB     p_nip                    ; ASSEMBLER
+c_nip   FDB     p_nip                    ; ASSEMBLY
 p_nip   PULU    X,D
         PSHU    D
         JMP     p_next
@@ -10636,7 +10636,7 @@ l_tuck  FDB     l_bar                    ; LFA -> |
 n_tuck  FCB     $84                      ; NFA -> 4
         FCB     $54,$55,$43,$CB          ; "TUCK"
 
-c_tuck  FDB     p_tuck                   ; ASSEMBLER
+c_tuck  FDB     p_tuck                   ; ASSEMBLY
 p_tuck  PULU    X,D
         PSHU    D
         PSHU    X,D
@@ -10650,7 +10650,7 @@ l_2swa0 FDB     l_nip                    ; LFA -> NIP
 n_2swa0 FCB     $86                      ; NFA -> 6
         FCB     $32,$53,$57,$41,$50,$B2  ; "2SWAP2"
 
-c_2swa0 FDB     p_2swa0                  ; ASSEMBLER
+c_2swa0 FDB     p_2swa0                  ; ASSEMBLY
 p_2swa0 PSHS    Y
         PULU    Y,X,D
         PSHS    D
@@ -10835,7 +10835,7 @@ l_d2ast FDB     l_tuck                   ; LFA -> TUCK
 n_d2ast FCB     $83                      ; NFA -> 3
         FCB     $44,$32,$AA              ; "D2*"
 
-c_d2ast FDB     p_d2ast                  ; ASSEMBLER
+c_d2ast FDB     p_d2ast                  ; ASSEMBLY
 p_d2ast ASL     $03,U
         ROL     $02,U
         ROL     $01,U
@@ -12531,7 +12531,7 @@ l_gr    FDB     l_clean                  ; LFA -> CLEAN
 n_gr    FCB     $82                      ; NFA -> 2
         FCB     $47,$D2                  ; "GR"
 
-c_gr    FDB     p_gr                     ; ASSEMBLER
+c_gr    FDB     p_gr                     ; ASSEMBLY
 p_gr    SWI
         FCB     $21
         JMP     p_next
@@ -12544,7 +12544,7 @@ l_tx    FDB     l_lf                     ; LFA -> LF
 n_tx    FCB     $82                      ; NFA -> 2
         FCB     $54,$D8                  ; "TX"
 
-c_tx    FDB     p_tx                     ; ASSEMBLER
+c_tx    FDB     p_tx                     ; ASSEMBLY
 p_tx    SWI
         FCB     $22
         JMP     p_next
@@ -12557,7 +12557,7 @@ l_eff   FDB     l_at0                    ; LFA -> AT
 n_eff   FCB     $83                      ; NFA -> 3
         FCB     $45,$46,$C6              ; "EFF"
 
-c_eff   FDB     p_eff                    ; ASSEMBLER
+c_eff   FDB     p_eff                    ; ASSEMBLY
 p_eff   SWI
         FCB     $23
         JMP     p_next
@@ -12712,7 +12712,7 @@ l_datet FDB     l_tempo                  ; LFA -> TEMPO
 n_datet FCB     $85                      ; NFA -> 5
         FCB     $44,$41,$54,$45,$A7      ; "DATE'"
 
-c_datet FDB     p_datet                  ; ASSEMBLER
+c_datet FDB     p_datet                  ; ASSEMBLY
 p_datet SWI
         ABX
         PSHU    X
@@ -12766,7 +12766,7 @@ l_move  FDB     l_yz                     ; LFA -> YZ
 n_move  FCB     $84                      ; NFA -> 4
         FCB     $4D,$4F,$56,$C5          ; "MOVE"
 
-c_move  FDB     p_move                   ; ASSEMBLER
+c_move  FDB     p_move                   ; ASSEMBLY
 p_move  PSHS    U,Y
         LDX     $02,U
         LDU     $04,U
@@ -13242,7 +13242,7 @@ l_kecar FDB     l_odivn                  ; LFA -> O/N
 n_kecar FCB     $85                      ; NFA -> 5
         FCB     $4B,$45,$43,$41,$D2      ; "KECAR"
 
-c_kecar FDB     p_kecar                  ; ASSEMBLER
+c_kecar FDB     p_kecar                  ; ASSEMBLY
 p_kecar PSHS    Y
         PULU    Y
         PULU    X
@@ -13272,7 +13272,7 @@ l_chain FDB     l_kecar                  ; LFA -> KECAR
 n_chain FCB     $86                      ; NFA -> 6
         FCB     $43,$48,$41,$49,$4E,$C5  ; "CHAINE"
 
-c_chain FDB     p_chain                  ; ASSEMBLER
+c_chain FDB     p_chain                  ; ASSEMBLY
 p_chain PSHS    Y
         PULU    Y
         PULU    X
@@ -13292,7 +13292,7 @@ l_cross FDB     l_chain                  ; LFA -> CHAINE
 n_cross FCB     $85                      ; NFA -> 5
         FCB     $43,$52,$4F,$53,$D3      ; "CROSS"
 
-c_cross FDB     p_cross                  ; ASSEMBLER
+c_cross FDB     p_cross                  ; ASSEMBLY
 p_cross PSHS    Y
         PULU    Y,X,D
         PSHS    D
@@ -15002,7 +15002,7 @@ l_col0  FDB     l_divli                  ; LFA -> /LI
 n_col0  FCB     $83                      ; NFA -> 3
         FCB     $43,$4F,$CC              ; "COL"
 
-c_col0  FDB     p_col0                   ; ASSEMBLER
+c_col0  FDB     p_col0                   ; ASSEMBLY
 p_col0  LEAU    $01,U
         PULU    A
         SWI
@@ -17286,7 +17286,7 @@ n_trai0 FCB     $87                      ; NFA -> 7
         FCB     $3C,$54,$52,$41,$49,$54  ; "<TRAIT"
         FCB     $BE                      ; ">"
 
-c_trai0 FDB     p_trai0                  ; ASSEMBLER
+c_trai0 FDB     p_trai0                  ; ASSEMBLY
 p_trai0 LEAU    $01,U
         PULU    A
         SWI
@@ -17301,7 +17301,7 @@ l_pixel FDB     l_trai0                  ; LFA -> <TRAIT>
 n_pixel FCB     $85                      ; NFA -> 5
         FCB     $50,$49,$58,$45,$CC      ; "PIXEL"
 
-c_pixel FDB     p_pixel                  ; ASSEMBLER
+c_pixel FDB     p_pixel                  ; ASSEMBLY
 p_pixel LEAX    ,U
         LEAU    $04,U
         SWI
@@ -17316,7 +17316,7 @@ l_npix  FDB     l_to_sq                  ; LFA -> >SQ
 n_npix  FCB     $84                      ; NFA -> 4
         FCB     $4E,$50,$49,$D8          ; "NPIX"
 
-c_npix  FDB     p_npix                   ; ASSEMBLER
+c_npix  FDB     p_npix                   ; ASSEMBLY
 p_npix  LEAX    ,U
         LEAU    $04,U
         SWI
@@ -17331,7 +17331,7 @@ l_line_ FDB     l_pixel                  ; LFA -> PIXEL
 n_line_ FCB     $86                      ; NFA -> 6
         FCB     $3C,$4C,$49,$4E,$45,$BE  ; "<LINE>"
 
-c_line_ FDB     p_line_                  ; ASSEMBLER
+c_line_ FDB     p_line_                  ; ASSEMBLY
 p_line_ LEAX    ,U
         LEAU    $08,U
         SWI
@@ -17346,7 +17346,7 @@ l_segm_ FDB     l_line_                  ; LFA -> <LINE>
 n_segm_ FCB     $86                      ; NFA -> 6
         FCB     $3C,$53,$45,$47,$4D,$BE  ; "<SEGM>"
 
-c_segm_ FDB     p_segm_                  ; ASSEMBLER
+c_segm_ FDB     p_segm_                  ; ASSEMBLY
 p_segm_ LEAX    ,U
         LEAU    $04,U
         SWI
@@ -17415,7 +17415,7 @@ n_teint FCB     $87                      ; NFA -> 7
         FCB     $3C,$54,$45,$49,$4E,$54  ; "<TEINT"
         FCB     $BE                      ; ">"
 
-c_teint FDB     p_teint                  ; ASSEMBLER
+c_teint FDB     p_teint                  ; ASSEMBLY
 p_teint LEAX    ,U
         LEAU    $04,U
         SWI
@@ -17444,7 +17444,7 @@ n_peint FCB     $87                      ; NFA -> 7
         FCB     $3C,$50,$45,$49,$4E,$54  ; "<PEINT"
         FCB     $BE                      ; ">"
 
-c_peint FDB     p_peint                  ; ASSEMBLER
+c_peint FDB     p_peint                  ; ASSEMBLY
 p_peint LEAX    ,U
         LEAU    $06,U
         LDB     $05,U
@@ -17502,7 +17502,7 @@ l_arc   FDB     l_acdat                  ; LFA -> ACDAT
 n_arc   FCB     $83                      ; NFA -> 3
         FCB     $41,$52,$C3              ; "ARC"
 
-c_arc   FDB     p_arc                    ; ASSEMBLER
+c_arc   FDB     p_arc                    ; ASSEMBLY
 p_arc   LEAX    ,U
         LEAU    $0A,U
         SWI
@@ -17517,7 +17517,7 @@ l_arcto FDB     l_arc                    ; LFA -> ARC
 n_arcto FCB     $85                      ; NFA -> 5
         FCB     $41,$52,$43,$54,$CF      ; "ARCTO"
 
-c_arcto FDB     p_arcto                  ; ASSEMBLER
+c_arcto FDB     p_arcto                  ; ASSEMBLY
 p_arcto LEAX    ,U
         LEAU    $06,U
         SWI
@@ -17653,7 +17653,7 @@ l_is_pr FDB     l_pret                   ; LFA -> PRET
 n_is_pr FCB     $85                      ; NFA -> 5
         FCB     $50,$52,$45,$54,$BF      ; "PRET?"
 
-c_is_pr FDB     p_is_pr                  ; ASSEMBLER
+c_is_pr FDB     p_is_pr                  ; ASSEMBLY
 p_is_pr LDB     EF936X_REG_CMD
         BITB    #$04
         BEQ     p_is_pr
@@ -17855,7 +17855,7 @@ n_mover FCB     $87                      ; NFA -> 7
         FCB     $4D,$4F,$56,$45,$52,$45  ; "MOVERE"
         FCB     $CC                      ; "L"
 
-c_mover FDB     p_mover                  ; ASSEMBLER
+c_mover FDB     p_mover                  ; ASSEMBLY
 p_mover LEAX    ,U
         LEAU    $04,U
         LDD     EF936X_REG_X_MSB
@@ -17875,7 +17875,7 @@ l_is_p0 FDB     l_plan                   ; LFA -> PLAN
 n_is_p0 FCB     $84                      ; NFA -> 4
         FCB     $50,$49,$58,$BF          ; "PIX?"
 
-c_is_p0 FDB     p_is_p0                  ; ASSEMBLER
+c_is_p0 FDB     p_is_p0                  ; ASSEMBLY
 p_is_p0 LEAU    -$04,U
         LEAX    ,U
         SWI
@@ -17890,7 +17890,7 @@ l_is_co FDB     l_cadre                  ; LFA -> CADRE
 n_is_co FCB     $84                      ; NFA -> 4
         FCB     $43,$4F,$4C,$BF          ; "COL?"
 
-c_is_co FDB     p_is_co                  ; ASSEMBLER
+c_is_co FDB     p_is_co                  ; ASSEMBLY
 p_is_co LEAX    ,U
         LEAU    $04,U
         SWI
@@ -18035,7 +18035,7 @@ l_gtext FDB     l_hsubi                  ; LFA -> H-ITAL
 n_gtext FCB     $88                      ; NFA -> 8
         FDB     $3C47,$5445,$5854,$45BE  ; "<GTEXTE>"
 
-c_gtext FDB     p_gtext                  ; ASSEMBLER
+c_gtext FDB     p_gtext                  ; ASSEMBLY
 p_gtext PULU    X
         SWI
         FCB     $35
@@ -18089,7 +18089,7 @@ n_motif FCB     $87                      ; NFA -> 7
         FCB     $3C,$4D,$4F,$54,$49,$46  ; "<MOTIF"
         FCB     $BE                      ; ">"
 
-c_motif FDB     p_motif                  ; ASSEMBLER
+c_motif FDB     p_motif                  ; ASSEMBLY
 p_motif PULU    X,D
         PSHU    D
         PSHU    X

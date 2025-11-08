@@ -210,7 +210,7 @@ end
 out('insert 0\n')
 
 function outAsm(w)
-	lcomment(w.pfa-2, 'ASSEMBLER')
+	lcomment(w.pfa-2, 'ASSEMBLY')
 
 	-- on part du lfa suivant et on remonte jusqu'à JMP <NEXT ou BRA XX
 	local next_lfa = (w.next and w.next.lfa) or mem:len()

@@ -1,5 +1,5 @@
 ; f9dasm: M6800/1/2/3/8/9 / H6309 Binary/OS9/FLEX9 Disassembler V1.83
-; Loaded binary file FORTH.BIN
+; Loaded binary file FORTH.dir/FORTH.BIN
 
 ;****************************************************
 ;* Used Labels                                      *

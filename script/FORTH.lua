@@ -380,7 +380,7 @@ function outDat(w)
 	end
 end
 
-out('file %s\n',  BIN)
+-- out('file %s\n',  BIN)
 out('setdp 0\n')
 out('option forced\n')
 out('option flex\n')

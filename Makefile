@@ -70,13 +70,13 @@ chk: FORTH.chk
 	@echo "Disassembling $*.dir/FORTH.BIN to $@..."
 	@$(F9DASM) -info $< -nohex -noaddr -out $@ $*.dir/FORTH.BIN >/dev/null
 	
-%.BIN: %.asm $(A09)
-	@echo "Assembling $< to $@..."
-	@$(A09) -b$@ $< >/dev/null
-	
 %.CMD: %.asm $(A09)
 	@echo "Assembling $< to $@..."
 	@$(A09) -f$@ $< >/dev/null
+	
+%.BIN: %.asm $(A09)
+	@echo "Assembling $< to $@..."
+	@$(A09) -b$@ $< >/dev/null
 	
 %.chk: %.dir/FORTH.BIN FORTH.BIN
 	@echo "Comparing..."
